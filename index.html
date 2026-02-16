@@ -231,13 +231,40 @@ body{font-family:var(--f);color:var(--t1);-webkit-font-smoothing:antialiased;bac
   .bg{border:1px solid currentColor!important;background:transparent!important;font-size:7.5px!important;padding:2px 7px!important}
   .ex{display:block!important;border-top:1px solid #eee!important;color:#555!important;font-size:9px!important;padding-top:6px!important;margin-top:4px!important}
   .ex b{color:#222!important}
-  .ov,.ts,input[type="file"]{display:none!important}
+  .ov,.ts,.pin-ov,.lock-btn,input[type="file"]{display:none!important}
   .p-head{display:flex!important;justify-content:space-between;align-items:flex-end;padding:0 0 10px;margin-bottom:14px;border-bottom:3px solid #DC2626}
   .p-head h1{font:800 18pt var(--f);color:#111;letter-spacing:-.5px;margin:0}
   .p-head p{font:400 8pt var(--f);color:#888;margin:0}
   .p-foot{display:block!important;position:fixed;bottom:0;left:0;right:0;text-align:center;font:400 7pt var(--f);color:#bbb;padding:4px 0;border-top:1px solid #ddd}
 }
 .p-head,.p-foot,.p-print{display:none}
+
+/* ═══ PIN MODAL ═══ */
+.pin-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.pin-ov.on{display:flex}
+.pin-md{background:var(--s2);border:1px solid var(--brd2);border-radius:var(--rd3);width:100%;max-width:360px;padding:32px 28px;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:mp .2s cubic-bezier(.32,.72,0,1);text-align:center}
+.pin-icon{width:56px;height:56px;background:var(--r-bg);border:1px solid var(--r-brd);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.pin-md h3{font:800 18px/1.2 var(--f);color:#fff;margin-bottom:6px}
+.pin-md p{font:400 13px/1.5 var(--f);color:var(--t3);margin-bottom:20px}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:24px}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--brd3);background:transparent;transition:.2s}
+.pin-dot.filled{background:var(--r);border-color:var(--r);box-shadow:0 0 10px var(--r-gl)}
+.pin-dot.err{border-color:#EF4444;animation:shake .4s ease}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:260px;margin:0 auto}
+.pin-btn{height:56px;border:1px solid var(--brd2);border-radius:12px;background:var(--s1);color:#fff;font:700 22px/1 var(--f);cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center}
+.pin-btn:hover{background:var(--s3);border-color:var(--brd3)}
+.pin-btn:active{transform:scale(.95);background:var(--s4)}
+.pin-btn.pin-del{font-size:13px;color:var(--t3)}
+.pin-btn.pin-del:hover{color:var(--r)}
+.pin-msg{font:600 12px/1 var(--f);color:var(--r);margin-top:14px;min-height:16px}
+.pin-cancel{background:none;border:none;color:var(--t4);font:600 13px/1 var(--f);cursor:pointer;margin-top:16px;padding:8px 16px;border-radius:8px;transition:.15s}
+.pin-cancel:hover{color:var(--t2);background:var(--s3)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+/* Lock indicator */
+.lock-btn{width:38px;height:38px;border:1px solid var(--brd2);border-radius:10px;background:var(--s1);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t4);transition:.15s;flex-shrink:0}
+.lock-btn:hover{border-color:var(--brd3);color:var(--t2);background:var(--s2)}
+.lock-btn.unlocked{border-color:rgba(34,214,138,.3);color:#22D68A;background:rgba(34,214,138,.08)}
 </style>
 </head>
 <body>
@@ -252,12 +279,13 @@ body{font-family:var(--f);color:var(--t1);-webkit-font-smoothing:antialiased;bac
     <div class="hd-stats">
       <div class="hd-st"><b id="sT">0</b><span>Contactos</span></div>
       <div class="hd-st"><b id="sC">0</b><span>Categorías</span></div>
+      <button class="lock-btn" id="lockBtn" onclick="toggleLock()" title="PIN Admin"><svg id="lockIco" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
     </div>
   </div></div>
 
   <div class="tb">
     <div class="sb"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input class="si" id="q" placeholder="Buscar nombre, empresa, teléfono..."></div>
-    <button class="bt bt-r" onclick="openM()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Nuevo</button>
+    <button class="bt bt-r" onclick="requirePin(function(){openM()})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Nuevo</button>
     <button class="bt bt-d" id="btnD" onclick="clr()" style="display:none">Borrar todo</button>
     <button class="bt bt-o p-print" onclick="prn()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Imprimir A4</button>
   </div>
@@ -302,10 +330,68 @@ body{font-family:var(--f);color:var(--t1);-webkit-font-smoothing:antialiased;bac
 <input type="file" id="vcfF" accept=".vcf,.vcard" multiple style="display:none" onchange="hVCF(event)">
 <div class="ts" id="ts"></div>
 
+<!-- PIN Modal -->
+<div class="pin-ov" id="pinOv">
+  <div class="pin-md">
+    <div class="pin-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+    <h3 id="pinTitle">Crear PIN de Administrador</h3>
+    <p id="pinDesc">Elegí un PIN de 4 dígitos para proteger la agenda</p>
+    <div class="pin-dots"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
+    <div class="pin-pad">
+      <button class="pin-btn" onclick="pinKey('1')">1</button>
+      <button class="pin-btn" onclick="pinKey('2')">2</button>
+      <button class="pin-btn" onclick="pinKey('3')">3</button>
+      <button class="pin-btn" onclick="pinKey('4')">4</button>
+      <button class="pin-btn" onclick="pinKey('5')">5</button>
+      <button class="pin-btn" onclick="pinKey('6')">6</button>
+      <button class="pin-btn" onclick="pinKey('7')">7</button>
+      <button class="pin-btn" onclick="pinKey('8')">8</button>
+      <button class="pin-btn" onclick="pinKey('9')">9</button>
+      <button class="pin-btn pin-del" onclick="pinClear()">Borrar</button>
+      <button class="pin-btn" onclick="pinKey('0')">0</button>
+      <button class="pin-btn pin-del" onclick="pinBack()">&#9003;</button>
+    </div>
+    <div class="pin-msg" id="pinMsg"></div>
+    <button class="pin-cancel" onclick="pinClose()">Cancelar</button>
+  </div>
+</div>
+
 <script>
 var SK='agenda_dp_v11',db=[],cF='todos',cL=null;
 var AVC={proveedor:'av-prov',cliente:'av-cli',staff:'av-staff',servicio:'av-serv',personal:'av-pers',otro:'av-otro'};
 var BGC={proveedor:'bg-prov',cliente:'bg-cli',staff:'bg-staff',servicio:'bg-serv',personal:'bg-pers',otro:'bg-otro'};
+
+/* ═══ PIN SYSTEM ═══ */
+var PIN_KEY='agenda_dp_pin',pinUnlocked=false,pinInput='',pinMode='',pinCB=null,pinSetupFirst='';
+function hashPin(p){var h=0;for(var i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h|=0}return h.toString()}
+function hasPin(){return!!localStorage.getItem(PIN_KEY)}
+function verifyPin(p){return hashPin(p)===localStorage.getItem(PIN_KEY)}
+function setPin(p){localStorage.setItem(PIN_KEY,hashPin(p))}
+function updateLockUI(){var b=document.getElementById('lockBtn');if(!b)return;if(pinUnlocked){b.classList.add('unlocked');b.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 5-5 5 5 0 0 1 5 5"/></svg>'}else{b.classList.remove('unlocked');b.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'}}
+function updatePinDots(){for(var i=0;i<4;i++){var d=document.getElementById('pd'+i);d.className='pin-dot'+(i<pinInput.length?' filled':'')}}
+function showPinError(msg){document.getElementById('pinMsg').textContent=msg;for(var i=0;i<4;i++)document.getElementById('pd'+i).classList.add('err');setTimeout(function(){pinInput='';updatePinDots();document.getElementById('pinMsg').textContent='';for(var i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('err')},600)}
+function pinKey(n){if(pinInput.length>=4)return;pinInput+=n;updatePinDots();if(pinInput.length===4)setTimeout(processPinEntry,200)}
+function pinBack(){if(pinInput.length>0){pinInput=pinInput.slice(0,-1);updatePinDots()}}
+function pinClear(){pinInput='';updatePinDots()}
+function pinClose(){document.getElementById('pinOv').classList.remove('on');pinInput='';pinMode='';pinCB=null;pinSetupFirst='';updatePinDots();document.getElementById('pinMsg').textContent=''}
+function processPinEntry(){
+  if(pinMode==='setup'){pinSetupFirst=pinInput;pinInput='';updatePinDots();document.getElementById('pinTitle').textContent='Confirmá tu PIN';document.getElementById('pinDesc').textContent='Ingresá el mismo PIN de nuevo';pinMode='setup-confirm';return}
+  if(pinMode==='setup-confirm'){if(pinInput===pinSetupFirst){setPin(pinInput);pinUnlocked=true;updateLockUI();pinClose();toast('PIN creado ✓ — Sesión desbloqueada');if(pinCB){var cb=pinCB;pinCB=null;cb()}}else{showPinError('Los PIN no coinciden. Intentá de nuevo');pinMode='setup';pinSetupFirst='';document.getElementById('pinTitle').textContent='Crear PIN de Administrador';document.getElementById('pinDesc').textContent='Elegí un PIN de 4 dígitos'}return}
+  if(pinMode==='verify'){if(verifyPin(pinInput)){pinUnlocked=true;updateLockUI();pinClose();toast('Desbloqueado ✓');if(pinCB){var cb=pinCB;pinCB=null;cb()}}else{showPinError('PIN incorrecto')}return}
+  if(pinMode==='change'){if(verifyPin(pinInput)){pinInput='';updatePinDots();document.getElementById('pinTitle').textContent='Nuevo PIN';document.getElementById('pinDesc').textContent='Elegí tu nuevo PIN de 4 dígitos';pinMode='setup';pinSetupFirst=''}else{showPinError('PIN actual incorrecto')}return}
+}
+function requirePin(callback){
+  if(pinUnlocked){callback();return}
+  pinCB=callback;pinInput='';pinSetupFirst='';updatePinDots();document.getElementById('pinMsg').textContent='';
+  if(!hasPin()){pinMode='setup';document.getElementById('pinTitle').textContent='Crear PIN de Administrador';document.getElementById('pinDesc').textContent='Elegí un PIN de 4 dígitos para proteger la agenda'}
+  else{pinMode='verify';document.getElementById('pinTitle').textContent='Ingresá tu PIN';document.getElementById('pinDesc').textContent='PIN de 4 dígitos requerido'}
+  document.getElementById('pinOv').classList.add('on');
+}
+function toggleLock(){
+  if(pinUnlocked){pinUnlocked=false;updateLockUI();toast('Sesión bloqueada');return}
+  if(!hasPin()){pinCB=null;pinInput='';pinSetupFirst='';pinMode='setup';document.getElementById('pinTitle').textContent='Crear PIN de Administrador';document.getElementById('pinDesc').textContent='Elegí un PIN de 4 dígitos para proteger la agenda';document.getElementById('pinMsg').textContent='';updatePinDots();document.getElementById('pinOv').classList.add('on');return}
+  pinCB=null;pinInput='';pinMode='verify';document.getElementById('pinTitle').textContent='Ingresá tu PIN';document.getElementById('pinDesc').textContent='Desbloquear sesión de administrador';document.getElementById('pinMsg').textContent='';updatePinDots();document.getElementById('pinOv').classList.add('on');
+}
 function gid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,5)}
 function ld(){var s=localStorage.getItem(SK);if(s)try{db=JSON.parse(s)}catch(e){db=[]}if(!db.length){db=seed();st()}}
 function st(){localStorage.setItem(SK,JSON.stringify(db))}
@@ -439,17 +525,17 @@ el.innerHTML=h}
 function fL(l){cL=l;rA()}
 function fCat(c){cF=c;rA()}
 document.getElementById('q').addEventListener('input',function(){render()});
-function clr(){if(!confirm('Borrar TODOS los contactos?'))return;db=[];st();rA();toast('Datos eliminados')}
+function clr(){requirePin(function(){if(!confirm('Borrar TODOS los contactos?'))return;db=[];st();rA();toast('Datos eliminados')})}
 var flds=['N','A','E','T','T2','M','D','CU','L','NO'],keys=['nombre','apellido','empresa','telefono','telefono2','email','direccion','cuit','local','notas'];
 function openM(d){document.getElementById('ov').classList.add('on');if(d){document.getElementById('mT').textContent='Editar Contacto';document.getElementById('eId').value=d.id;flds.forEach(function(f,i){document.getElementById('f'+f).value=d[keys[i]]||''});document.getElementById('fC').value=d.categoria||'proveedor'}else{document.getElementById('mT').textContent='Nuevo Contacto';document.getElementById('eId').value='';flds.forEach(function(f){document.getElementById('f'+f).value=''});document.getElementById('fC').value='proveedor'}}
 function clM(){document.getElementById('ov').classList.remove('on')}
 function sv(){var n=document.getElementById('fN').value.trim();if(!n){toast('Nombre obligatorio');return}var d={};flds.forEach(function(f,i){d[keys[i]]=document.getElementById('f'+f).value.trim()});d.categoria=document.getElementById('fC').value;var eid=document.getElementById('eId').value;if(eid){var ix=db.findIndex(function(c){return c.id===eid});if(ix!==-1){Object.assign(db[ix],d);toast('Contacto actualizado')}}else{d.id=gid();db.push(d);toast('Contacto agregado')}st();clM();rA()}
-function ed(id){var c=db.find(function(x){return x.id===id});if(c)openM(c)}
-function del(id){if(!confirm('Eliminar este contacto?'))return;db=db.filter(function(c){return c.id!==id});st();rA();toast('Contacto eliminado')}
+function ed(id){requirePin(function(){var c=db.find(function(x){return x.id===id});if(c)openM(c)})}
+function del(id){requirePin(function(){if(!confirm('Eliminar este contacto?'))return;db=db.filter(function(c){return c.id!==id});st();rA();toast('Contacto eliminado')})}
 
 function expC(){var h=['nombre','apellido','empresa','categoria','telefono','telefono2','email','direccion','cuit','local','notas'];var csv=h.join(',')+'\n';db.forEach(function(c){csv+=h.map(function(k){var v=(c[k]||'').toString();if(v.indexOf(',')>=0||v.indexOf('"')>=0)v='"'+v.replace(/"/g,'""')+'"';return v}).join(',')+'\n'});var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv'}));a.download='agenda_docks.csv';a.click();toast('CSV exportado')}
-function impC(){document.getElementById('csvF').click()}
-function impW(){document.getElementById('vcfF').click()}
+function impC(){requirePin(function(){document.getElementById('csvF').click()})}
+function impW(){requirePin(function(){document.getElementById('vcfF').click()})}
 function prn(){
   /* expand all details for printing */
   document.querySelectorAll('.ct').forEach(function(el){el.classList.add('op')});
@@ -464,9 +550,11 @@ function nCat(c){c=c.toLowerCase();if(['proveedor','provider'].indexOf(c)>=0)ret
 function toast(m){var t=document.getElementById('ts');t.textContent=m;t.classList.add('sh');setTimeout(function(){t.classList.remove('sh')},2800)}
 ld();rA();
 document.getElementById('ov').addEventListener('click',function(e){if(e.target===this)clM()});
-document.addEventListener('keydown',function(e){if(e.key==='Escape')clM();if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('q').focus()}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){clM();pinClose()}if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('q').focus()}});
 /* Show print button after load */
 document.querySelector('.p-print').style.display='inline-flex';
+updateLockUI();
+document.getElementById('pinOv').addEventListener('click',function(e){if(e.target===this)pinClose()});
 </script>
 </body>
 </html>
