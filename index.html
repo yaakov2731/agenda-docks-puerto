@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#09090B">
+<title>Docks del Puerto — Agenda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  /* Rich dark with subtle blue undertone */
+  --bg:#0C0C14;--s1:#13131D;--s2:#1A1A28;--s3:#222233;--s4:#2D2D42;
+  --brd:rgba(255,255,255,.07);--brd2:rgba(255,255,255,.11);--brd3:rgba(255,255,255,.18);
+  /* Bright text hierarchy — high contrast */
+  --t1:#FFFFFF;--t2:#D4D4E0;--t3:#9898B0;--t4:#6E6E8A;--t5:#4A4A64;
+  /* Red accent — vivid */
+  --r:#EF4444;--r2:#DC2626;--r-bg:rgba(239,68,68,.1);--r-brd:rgba(239,68,68,.22);--r-gl:rgba(239,68,68,.15);
+  /* Category — saturated & bright */
+  --c-prov:#4F8EFF;--c-cli:#22D68A;--c-staff:#FFB020;--c-serv:#A36FFF;--c-pers:#FF5FA0;--c-otro:#8888A0;
+  --rd:14px;--rd2:10px;--rd3:18px;
+  --f:'Sora',system-ui,sans-serif;--fm:'Space Mono',monospace;
+}
+html{height:100%;background:var(--bg)}
+body{font-family:var(--f);color:var(--t1);-webkit-font-smoothing:antialiased;background:var(--bg)}
+::selection{background:var(--r);color:#fff}
+.app{max-width:920px;margin:0 auto;padding:0 28px 100px}
+
+/* ═══ HEADER ═══ */
+.hd{position:sticky;top:0;z-index:50;margin:0 -28px;padding:0 28px;background:rgba(12,12,20,.88);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-bottom:1px solid var(--brd2)}
+.hd-top{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+.hd-brand{display:flex;align-items:center;gap:14px}
+.hd-mark{width:44px;height:44px;background:linear-gradient(135deg,#EF4444,#DC2626);border-radius:12px;display:flex;align-items:center;justify-content:center;font:800 16px/1 var(--f);color:#fff;letter-spacing:-.5px;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(239,68,68,.3)}
+.hd-mark::after{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:rgba(255,255,255,.15)}
+.hd-name{font:800 18px/1.1 var(--f);color:#fff;letter-spacing:-.5px}
+.hd-sub{font:500 10px/1.3 var(--f);color:var(--t4);margin-top:3px;letter-spacing:.8px;text-transform:uppercase}
+.hd-stats{display:flex;gap:32px}
+.hd-st{text-align:right}
+.hd-st b{font:800 26px/1 var(--f);color:#fff;display:block;letter-spacing:-1.5px}
+.hd-st span{font:500 9px/1 var(--f);color:var(--t4);text-transform:uppercase;letter-spacing:2px}
+
+/* ═══ TOOLBAR ═══ */
+.tb{display:flex;gap:10px;padding:18px 0;flex-wrap:wrap}
+.sb{flex:1;min-width:200px;position:relative}
+.sb svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--t4);pointer-events:none;transition:.2s}
+.sb:focus-within svg{color:var(--r)}
+.si{width:100%;height:48px;padding:0 18px 0 46px;border:1px solid var(--brd2);border-radius:var(--rd2);font:500 15px/1 var(--f);color:var(--t1);background:var(--s1);outline:none;transition:.2s}
+.si::placeholder{color:var(--t5)}.si:focus{border-color:var(--r);box-shadow:0 0 0 3px var(--r-gl)}
+.bt{height:48px;padding:0 22px;border-radius:var(--rd2);font:700 14px/1 var(--f);cursor:pointer;transition:.15s;border:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.bt-r{background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;box-shadow:0 2px 12px rgba(239,68,68,.25)}.bt-r:hover{box-shadow:0 6px 24px rgba(239,68,68,.35);transform:translateY(-1px)}
+.bt-o{background:var(--s2);color:var(--t2);border:1px solid var(--brd2)}.bt-o:hover{border-color:var(--r-brd);color:var(--r);background:var(--r-bg)}
+.bt-d{background:transparent;color:var(--r);border:1px solid var(--r-brd)}.bt-d:hover{background:var(--r-bg)}
+
+/* ═══ IO BAR ═══ */
+.io{display:flex;gap:6px;padding:0 0 16px;flex-wrap:wrap;align-items:center}
+.io-l{font:700 10px/1 var(--f);color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-right:6px}
+.io .bt{height:34px;padding:0 14px;font-size:12px;font-weight:600;border-radius:8px}
+.io .bw{background:#25D366;color:#fff;border:none;font-weight:700;box-shadow:0 2px 10px rgba(37,211,102,.2)}.io .bw:hover{background:#1DA851;box-shadow:0 4px 16px rgba(37,211,102,.3)}
+
+/* ═══ FILTERS ═══ */
+.cats{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.cat{height:36px;padding:0 18px;border-radius:8px;font:600 13px/1 var(--f);background:var(--s1);border:1px solid var(--brd);cursor:pointer;color:var(--t3);transition:.15s;display:flex;align-items:center}
+.cat:hover{color:var(--t1);border-color:var(--brd3);background:var(--s2)}
+.cat.on{background:#fff;color:#0C0C14;border-color:#fff;font-weight:700;box-shadow:0 2px 12px rgba(255,255,255,.1)}
+
+.alpha{display:flex;gap:0;margin-bottom:18px;background:var(--s1);border-radius:var(--rd2);border:1px solid var(--brd);overflow:hidden}
+.al{flex:1;height:32px;display:flex;align-items:center;justify-content:center;font:700 10px/1 var(--f);color:var(--t5);background:transparent;border:none;cursor:pointer;transition:.1s;position:relative}
+.al:hover{background:var(--s3);color:var(--t2)}
+.al.on{background:var(--r);color:#fff;box-shadow:inset 0 0 12px rgba(255,255,255,.1)}
+.al.has{color:var(--t3)}
+.al.has::after{content:'';position:absolute;bottom:3px;width:4px;height:2px;background:var(--r);border-radius:1px}
+.al.on.has::after{background:rgba(255,255,255,.6)}
+
+/* ═══ CONTACT LIST ═══ */
+.lg{margin-bottom:22px}
+.ll{display:flex;align-items:center;gap:12px;margin-bottom:8px;padding:0 4px}
+.ll b{font:800 24px/1 var(--f);color:var(--r);letter-spacing:-1px;min-width:20px}
+.ll hr{flex:1;border:none;height:1px;background:var(--brd2)}
+.ll small{font:700 10px/1 var(--fm);color:var(--t3);background:var(--s2);padding:4px 10px;border-radius:6px;border:1px solid var(--brd)}
+
+.ct{display:grid;grid-template-columns:50px 1fr auto;gap:14px;align-items:center;padding:16px 18px;background:var(--s1);border:1px solid var(--brd);border-radius:var(--rd);margin-bottom:5px;cursor:pointer;transition:.2s;position:relative}
+.ct:hover{border-color:var(--brd3);background:var(--s2);box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.ct:active{transform:scale(.995)}
+
+.av{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font:700 16px/1 var(--f);color:#fff;position:relative}
+.av::after{content:'';position:absolute;inset:0;border-radius:12px;background:linear-gradient(135deg,rgba(255,255,255,.2) 0%,transparent 50%)}
+
+.ci .n{font:700 16px/1.3 var(--f);color:#fff}
+.ci .co{font:500 12px/1.3 var(--f);color:var(--t3);margin-top:2px}
+.ci .row{display:flex;gap:16px;margin-top:6px;flex-wrap:wrap}
+.ci .it{display:flex;align-items:center;gap:5px;font:400 12px/1 var(--fm);color:var(--t2)}
+.ci .it svg{opacity:.5;flex-shrink:0}
+
+.cr{display:flex;align-items:center;gap:8px}
+.bg{padding:5px 12px;border-radius:6px;font:700 9px/1.3 var(--f);letter-spacing:.6px;text-transform:uppercase}
+.bg-prov{background:rgba(79,142,255,.12);color:#6BA3FF}.bg-cli{background:rgba(34,214,138,.12);color:#3DE8A0}
+.bg-staff{background:rgba(255,176,32,.12);color:#FFC24D}.bg-serv{background:rgba(163,111,255,.12);color:#B98AFF}
+.bg-pers{background:rgba(255,95,160,.12);color:#FF7EB5}.bg-otro{background:rgba(136,136,160,.12);color:var(--t3)}
+
+.av-prov{background:linear-gradient(135deg,#2563EB,#4F8EFF)}.av-cli{background:linear-gradient(135deg,#059669,#22D68A)}
+.av-staff{background:linear-gradient(135deg,#D97706,#FFB020)}.av-serv{background:linear-gradient(135deg,#7C3AED,#A36FFF)}
+.av-pers{background:linear-gradient(135deg,#DB2777,#FF5FA0)}.av-otro{background:linear-gradient(135deg,#555570,#8888A0)}
+
+.ra{display:flex;gap:4px;opacity:0;transition:.15s}.ct:hover .ra{opacity:1}
+.ab{width:32px;height:32px;border:none;background:var(--s3);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t3);transition:.12s}
+.ab:hover{background:var(--s4);color:#fff}.ab.dl:hover{background:var(--r);color:#fff}
+
+.ex{grid-column:1/-1;padding-top:12px;margin-top:8px;border-top:1px solid var(--brd);font:500 13px/1.8 var(--f);color:var(--t3);display:none;animation:fi .15s ease}
+.ex b{color:var(--t2);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.6px}
+.ct.op .ex{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+
+.em{text-align:center;padding:60px 20px;color:var(--t5)}
+.em svg{opacity:.15;margin-bottom:8px}
+.em h3{font:700 16px/1.3 var(--f);color:var(--t3)}
+
+/* ═══ FOOTER ═══ */
+.fo{margin-top:32px;padding-top:16px;border-top:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.fo-b{font:500 10px/1 var(--f);color:var(--t5);letter-spacing:1.5px;text-transform:uppercase}
+.fo-a{display:flex;gap:6px}
+
+/* ═══ MODAL ═══ */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;justify-content:center;align-items:flex-end;padding:0;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.ov.on{display:flex}
+@media(min-width:640px){.ov{align-items:center;padding:20px}}
+.md{background:var(--s2);border:1px solid var(--brd2);border-radius:var(--rd3) var(--rd3) 0 0;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.5);animation:su .25s cubic-bezier(.32,.72,0,1)}
+@media(min-width:640px){.md{border-radius:var(--rd3);animation:mp .2s cubic-bezier(.32,.72,0,1)}}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes mp{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.md-h{padding:20px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--brd)}
+.md-h h2{font:800 18px/1 var(--f);color:#fff}
+.md-x{background:var(--s3);width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:18px;cursor:pointer;border-radius:10px;border:none;transition:.12s}
+.md-x:hover{background:var(--r);color:#fff}
+.md-b{padding:18px 24px 20px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font:700 10px/1 var(--f);color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+.fg input,.fg select,.fg textarea{width:100%;height:46px;padding:0 16px;border:1px solid var(--brd2);border-radius:var(--rd2);font:500 15px/1 var(--f);color:#fff;background:var(--s1);outline:none;transition:.2s}
+.fg textarea{height:auto;padding:12px 16px;resize:vertical;min-height:60px}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--r);box-shadow:0 0 0 3px var(--r-gl)}
+.fg select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%239898B0' stroke-width='2'%3E%3Cpath d='m2 4 4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:36px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.md-f{padding:14px 24px 22px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--brd)}
+
+/* ═══ TOAST ═══ */
+.ts{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(50px);background:var(--s3);color:#fff;padding:14px 24px;border-radius:10px;font:600 13px/1 var(--f);border:1px solid var(--brd2);z-index:200;opacity:0;transition:.25s cubic-bezier(.32,.72,0,1);display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.ts::before{content:'';width:6px;height:6px;background:var(--r);border-radius:50%;flex-shrink:0;box-shadow:0 0 8px rgba(239,68,68,.5)}
+.ts.sh{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ═══ RESPONSIVE — MOBILE ═══ */
+@media(max-width:768px){
+  .app{padding:0 18px 90px}
+  .hd{margin:0 -18px;padding:0 18px}
+  .hd-mark{width:38px;height:38px;font-size:14px;border-radius:10px}
+  .hd-name{font-size:16px}
+  .hd-st b{font-size:22px}
+  .ct{grid-template-columns:44px 1fr auto;gap:12px;padding:14px 16px}
+  .av{width:44px;height:44px;font-size:14px;border-radius:10px}
+  .ci .n{font-size:15px}
+  .ci .it{font-size:11px}
+}
+@media(max-width:480px){
+  .hd-stats{gap:18px}
+  .hd-st b{font-size:20px}
+  .hd-name{font-size:15px}
+  .alpha{display:none}
+  .ct{grid-template-columns:40px 1fr}
+  .cr{position:absolute;top:12px;right:12px}
+  .ra{display:none}
+  .fr{grid-template-columns:1fr}
+  .bt{height:44px;font-size:13px}
+  .si{height:44px;font-size:14px}
+  .cat{height:34px;font-size:12px}
+}
+
+/* ═══ RESPONSIVE — IPAD ═══ */
+@media(min-width:768px) and (max-width:1100px){
+  .app{max-width:800px;padding:0 36px 100px}
+  .hd{margin:0 -36px;padding:0 36px}
+  .hd-mark{width:48px;height:48px;font-size:17px;border-radius:14px}
+  .hd-name{font-size:20px}
+  .hd-st b{font-size:28px}
+  .ct{padding:18px 20px;grid-template-columns:54px 1fr auto}
+  .av{width:54px;height:54px;font-size:18px;border-radius:14px}
+  .ci .n{font-size:17px}
+  .ci .co{font-size:13px}
+  .ci .it{font-size:12px}
+  .bg{font-size:10px;padding:5px 14px}
+  .bt{height:50px;padding:0 26px;font-size:15px}
+  .si{height:50px;font-size:16px}
+  .cat{height:40px;padding:0 22px;font-size:14px}
+  .al{height:36px;font-size:12px}
+  .ll b{font-size:28px}
+}
+
+/* ═══ PRINT A4 ═══ */
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+  @page{size:A4 portrait;margin:15mm 14mm 18mm 14mm}
+  body{background:#fff!important;color:#1a1a1a!important;font-size:10pt}
+  .app{max-width:100%;padding:0!important}
+  .hd{position:static!important;background:#fff!important;backdrop-filter:none!important;border-bottom:3px solid #DC2626!important;margin:0!important;padding:10px 0 8px!important}
+  .hd-mark{background:#DC2626!important;-webkit-print-color-adjust:exact;box-shadow:none!important}
+  .hd-name,.hd-st b{color:#111!important}
+  .hd-sub,.hd-st span{color:#777!important}
+  .tb,.io,.cats,.alpha,.fo,.ra,.bt-d,#btnD,.bt-o,.bt-r{display:none!important}
+  .p-print{display:block!important}
+  .lg{page-break-inside:avoid;margin-bottom:10px}
+  .ll{margin-bottom:4px}.ll b{color:#DC2626!important;font-size:18px}
+  .ll small{background:#f0f0f0!important;color:#444!important;border:none!important}
+  .ll hr{background:#ddd!important}
+  .ct{background:#fff!important;border:1px solid #e0e0e0!important;border-radius:6px!important;padding:8px 10px!important;margin-bottom:3px!important;box-shadow:none!important;page-break-inside:avoid}
+  .ct:hover{transform:none!important;border-color:#e0e0e0!important;background:#fff!important}
+  .av{width:34px!important;height:34px!important;border-radius:6px!important;font-size:11px!important}
+  .ci .n{color:#111!important;font-size:12px!important;font-weight:700!important}
+  .ci .co{color:#555!important;font-size:10px!important}
+  .ci .it{color:#444!important;font-size:9px!important}
+  .bg{border:1px solid currentColor!important;background:transparent!important;font-size:7.5px!important;padding:2px 7px!important}
+  .ex{display:block!important;border-top:1px solid #eee!important;color:#555!important;font-size:9px!important;padding-top:6px!important;margin-top:4px!important}
+  .ex b{color:#222!important}
+  .ov,.ts,input[type="file"]{display:none!important}
+  .p-head{display:flex!important;justify-content:space-between;align-items:flex-end;padding:0 0 10px;margin-bottom:14px;border-bottom:3px solid #DC2626}
+  .p-head h1{font:800 18pt var(--f);color:#111;letter-spacing:-.5px;margin:0}
+  .p-head p{font:400 8pt var(--f);color:#888;margin:0}
+  .p-foot{display:block!important;position:fixed;bottom:0;left:0;right:0;text-align:center;font:400 7pt var(--f);color:#bbb;padding:4px 0;border-top:1px solid #ddd}
+}
+.p-head,.p-foot,.p-print{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="p-head"><div><h1>DOCKS DEL PUERTO</h1><p>Agenda de Contactos</p></div><p>Tigre, Buenos Aires &middot; <script>document.write(new Date().toLocaleDateString('es-AR'))</script></p></div>
+
+  <div class="hd"><div class="hd-top">
+    <div class="hd-brand">
+      <div class="hd-mark">DP</div>
+      <div><div class="hd-name">Agenda de Contactos</div><div class="hd-sub">Docks del Puerto &middot; Tigre</div></div>
+    </div>
+    <div class="hd-stats">
+      <div class="hd-st"><b id="sT">0</b><span>Contactos</span></div>
+      <div class="hd-st"><b id="sC">0</b><span>Categorías</span></div>
+    </div>
+  </div></div>
+
+  <div class="tb">
+    <div class="sb"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input class="si" id="q" placeholder="Buscar nombre, empresa, teléfono..."></div>
+    <button class="bt bt-r" onclick="openM()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Nuevo</button>
+    <button class="bt bt-d" id="btnD" onclick="clr()" style="display:none">Borrar todo</button>
+    <button class="bt bt-o p-print" onclick="prn()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Imprimir A4</button>
+  </div>
+
+  <div class="io">
+    <span class="io-l">Sync</span>
+    <button class="bt bt-o" onclick="expC()">&#8593; Export CSV</button>
+    <button class="bt bt-o" onclick="impC()">&#8595; Import CSV</button>
+    <button class="bt bw" onclick="impW()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.11 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.64.26 1.27.44 1.88a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.61.18 1.24.32 1.88.44A2 2 0 0 1 22 16.92z"/></svg>WhatsApp .vcf</button>
+  </div>
+
+  <div class="cats" id="cats"></div>
+  <div class="alpha" id="alpha"></div>
+  <div id="list"></div>
+
+  <div class="fo">
+    <div class="fo-b">Docks del Puerto &middot; Tigre, Buenos Aires</div>
+    <div class="fo-a">
+      <button class="bt bt-o" style="height:26px;font-size:10px" onclick="expC()">&#8593; CSV</button>
+      <button class="bt bt-o" style="height:26px;font-size:10px" onclick="prn()">&#128438; A4</button>
+    </div>
+  </div>
+  <div class="p-foot">Docks del Puerto &mdash; Tigre, Buenos Aires &middot; docksdelpuerto.com.ar</div>
+</div>
+
+<div class="ov" id="ov">
+  <div class="md">
+    <div class="md-h"><h2 id="mT">Nuevo Contacto</h2><button class="md-x" onclick="clM()">&#215;</button></div>
+    <div class="md-b">
+      <input type="hidden" id="eId">
+      <div class="fr"><div class="fg"><label>Nombre *</label><input id="fN"></div><div class="fg"><label>Apellido</label><input id="fA"></div></div>
+      <div class="fr"><div class="fg"><label>Empresa</label><input id="fE"></div><div class="fg"><label>Categoría</label><select id="fC"><option value="proveedor">Proveedor</option><option value="cliente">Cliente</option><option value="staff">Staff</option><option value="servicio">Servicio</option><option value="personal">Personal</option><option value="otro">Otro</option></select></div></div>
+      <div class="fr"><div class="fg"><label>Teléfono *</label><input id="fT" type="tel"></div><div class="fg"><label>Tel. Alt.</label><input id="fT2" type="tel"></div></div>
+      <div class="fr"><div class="fg"><label>Email</label><input id="fM" type="email"></div><div class="fg"><label>Dirección</label><input id="fD"></div></div>
+      <div class="fr"><div class="fg"><label>CUIT / DNI</label><input id="fCU"></div><div class="fg"><label>Local / Zona</label><input id="fL"></div></div>
+      <div class="fg"><label>Notas</label><textarea id="fNO"></textarea></div>
+    </div>
+    <div class="md-f"><button class="bt bt-o" onclick="clM()">Cancelar</button><button class="bt bt-r" onclick="sv()">Guardar</button></div>
+  </div>
+</div>
+<input type="file" id="csvF" accept=".csv" style="display:none" onchange="hCSV(event)">
+<input type="file" id="vcfF" accept=".vcf,.vcard" multiple style="display:none" onchange="hVCF(event)">
+<div class="ts" id="ts"></div>
+
+<script>
+var SK='agenda_dp_v11',db=[],cF='todos',cL=null;
+var AVC={proveedor:'av-prov',cliente:'av-cli',staff:'av-staff',servicio:'av-serv',personal:'av-pers',otro:'av-otro'};
+var BGC={proveedor:'bg-prov',cliente:'bg-cli',staff:'bg-staff',servicio:'bg-serv',personal:'bg-pers',otro:'bg-otro'};
+function gid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,5)}
+function ld(){var s=localStorage.getItem(SK);if(s)try{db=JSON.parse(s)}catch(e){db=[]}if(!db.length){db=seed();st()}}
+function st(){localStorage.setItem(SK,JSON.stringify(db))}
+function seed(){return[
+{id:gid(),nombre:"Alexander",apellido:"Flete",empresa:"",categoria:"servicio",telefono:"+54 9 11 3459-6665",telefono2:"",email:"",direccion:"",cuit:"",local:"Docks del Puerto",notas:"Servicio de flete"},
+{id:gid(),nombre:"Camion",apellido:"Container",empresa:"",categoria:"servicio",telefono:"+54 9 11 4945-2821",telefono2:"",email:"",direccion:"",cuit:"",local:"Docks del Puerto",notas:"Transporte de containers"},
+{id:gid(),nombre:"Gabriel",apellido:"Biz",empresa:"Perfidur",categoria:"proveedor",telefono:"+54 9 11 4992-3293",telefono2:"",email:"",direccion:"",cuit:"",local:"Docks del Puerto",notas:"Perfidur"},
+{id:gid(),nombre:"Gromanti",apellido:"Puertas",empresa:"Gromanti Puertas",categoria:"proveedor",telefono:"+54 9 11 5141-3373",telefono2:"",email:"",direccion:"",cuit:"",local:"Docks del Puerto",notas:"Fabrica de puertas placas"},
+{id:gid(),nombre:"Francisco",apellido:"",empresa:"Proyectado Poliuretano",categoria:"servicio",telefono:"+54 9 11 4974-5772",telefono2:"",email:"",direccion:"",cuit:"",local:"Docks del Puerto",notas:"Proyectado de poliuretano"},
+{id:gid(),nombre:"Roque",apellido:"",empresa:"BARMETAL",categoria:"proveedor",telefono:"+54 9 11 5249-8334",telefono2:"",email:"",direccion:"",cuit:"",local:"Docks del Puerto",notas:"BARMETAL"},
+{id:gid(),nombre:"Jose",apellido:"El Indio",empresa:"Transporte Jose El Indio",categoria:"servicio",telefono:"+54 9 280 496-7340",telefono2:"",email:"",direccion:"",cuit:"",local:"Docks del Puerto",notas:"Transporte"},
+{id:gid(),nombre:"Afilacion",apellido:"Hernan",empresa:"Afilacion Herman",categoria:"proveedor",telefono:"+54 9 11 6321-1310",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Fabricamos, reparamos y afilamos herramientas de corte para toda la industria"},
+{id:gid(),nombre:"Alan",apellido:"Reino Ceramicos",empresa:"Alan Reino Ceramicos",categoria:"proveedor",telefono:"+54 9 11 6925-9557",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Somos una empresa 100% Argentina especialista en la venta deporcelanatos, cerámicos y adhesivos. Con más de 600.000m2 disponiblesen stock con entrega inmediata. Te aseguramos volumen, stock, precio, s"},
+{id:gid(),nombre:"Ale",apellido:"Lonero",empresa:"",categoria:"proveedor",telefono:"+54 9 11 5884-4027",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Ale",apellido:"Rinvon Del Herraje",empresa:"",categoria:"proveedor",telefono:"+54 9 11 5178-5444",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Aserradero",apellido:"Romano",empresa:"Aserradero Romano",categoria:"proveedor",telefono:"+54 9 11 2195-5299",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"VENTA DE MADERAS 🪵° VENTA DE MADERAS PARA LA CONSTRUCCION. 👷🏻‍♂️° VIGAS H20 ° PUNTALES METALICOS° TERCIADO FENOLICOS - COMUNES Y PLASTIFICADOS."},
+{id:gid(),nombre:"Carpinteria",apellido:"Del Carril",empresa:"Carpintería Del Carril",categoria:"proveedor",telefono:"+54 9 11 5802-2685",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Venta de artículos para el carpintero hobbistas y aficionados"},
+{id:gid(),nombre:"casa",apellido:"franci refr",empresa:"",categoria:"proveedor",telefono:"+54 9 11 6529-6931",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Corralon",apellido:"El Lider",empresa:"Corralon El Lider",categoria:"proveedor",telefono:"+54 9 11 6469-5865",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"UNICO MEDIO VIA MENSAJES. SINO COMUNICARSE POR LLAMADA AL 11-33483980"},
+{id:gid(),nombre:"Corralón",apellido:"Pitty Añelo 1",empresa:"Corralón Pitty Añelo 1",categoria:"proveedor",telefono:"+54 9 299 593-5411",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Todo en Materiales para la Construcción, Electricidad, Instalaciones, Pintura, Limpieza y más"},
+{id:gid(),nombre:"Corralón",apellido:"Pitty Añelo Meseta",empresa:"",categoria:"proveedor",telefono:"+54 9 299 429-0256",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Debora",apellido:"Madewil",empresa:"Debora Madewil",categoria:"proveedor",telefono:"+54 9 11 5925-5278",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Di",apellido:"Pietro Vidrieria",empresa:"De Pietro Vidrios y Aberturas srl",categoria:"proveedor",telefono:"+54 9 11 5667-8266",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Venta y Colocacion de vidrios y aberturas"},
+{id:gid(),nombre:"diego",apellido:"Electra maestri electra",empresa:"",categoria:"proveedor",telefono:"+54 9 11 4479-1673",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Diegol",apellido:"Hierros",empresa:"",categoria:"proveedor",telefono:"+54 9 11 3175-2711",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"DisDec",apellido:"",empresa:"DisDec",categoria:"proveedor",telefono:"+54 9 11 2716-5715",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Ingeniería y construcción"},
+{id:gid(),nombre:"E-mad",apellido:"Maderas",empresa:"",categoria:"proveedor",telefono:"+54 9 11 2321-9030",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Eldesa",apellido:"Electricidad",empresa:"Eldesa Electricidad",categoria:"proveedor",telefono:"+54 9 11 7361-6742",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Venta Mayorista de Insumos para instalaciones electricos"},
+{id:gid(),nombre:"Electricidad",apellido:"Montes De Oca",empresa:"Electricidad Montes De Oca",categoria:"proveedor",telefono:"+54 9 11 3197-6173",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Materiales eléctricos para la construcción🏡"},
+{id:gid(),nombre:"Electromecanica",apellido:"Soto",empresa:"Electromecanica Soto",categoria:"proveedor",telefono:"+54 9 11 4142-2929",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Motores bombas y máquinas"},
+{id:gid(),nombre:"Fabrica",apellido:"Inflables",empresa:"Blimp Works Argentina DEPOT",categoria:"proveedor",telefono:"+54 9 11 6684-9845",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Fábrica y Diseño de todo tipo de Estructuras Inflables, gran variedad de modelos , tamaños y diseños. La mejor calidad del mercado.  Fabricación de Airtracks y inflables para gym"},
+{id:gid(),nombre:"Fotocopiado",apellido:"",empresa:"Fotocopiado",categoria:"proveedor",telefono:"+54 9 11 5841-4820",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Impresiones y fotocopias A4/ A3.Plastificados.Anillados.Copias, ploteos y escaneos de PLANOS."},
+{id:gid(),nombre:"Gabriel",apellido:"Biz Perfidur",empresa:"",categoria:"proveedor",telefono:"+54 9 11 4992-3293",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Gaby",apellido:"Turbinas De Motores De Inflables",empresa:"",categoria:"proveedor",telefono:"+54 9 11 4993-4612",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Gallego",apellido:"Pelba",empresa:"",categoria:"proveedor",telefono:"+54 9 11 3789-1790",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Gramabi",apellido:"",empresa:"Glari (GRAMABI)",categoria:"proveedor",telefono:"+54 9 11 2193-5562",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Gromanti",apellido:"Puertas",empresa:"Pedidos Gromanti",categoria:"proveedor",telefono:"+54 9 11 5141-3373",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Fabrica de puertas placas"},
+{id:gid(),nombre:"Grupo",apellido:"Márquez Villa Devoto Marcelo",empresa:"Grupo Márquez Villa Devoto",categoria:"proveedor",telefono:"+54 9 11 5582-5103",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Gustavo",apellido:"Kalop",empresa:"",categoria:"proveedor",telefono:"+54 9 11 6706-3150",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Gustavo",apellido:"Pirallini",empresa:"Ventas Piragine",categoria:"proveedor",telefono:"+54 9 11 5573-9987",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Haltbar",apellido:"Pvc",empresa:"Haltbar Pvc",categoria:"proveedor",telefono:"+54 9 11 4422-1904",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Nos dedicamos a la venta y colocación 🛠️ de machimbre de PVC para cielorraso y revestimiento 🏠 a la venta y re-cambio de paño de persianas de enrollar de PVC Y venta de puertas plegables de PVC 🚪"},
+{id:gid(),nombre:"Herrajes",apellido:"Tigre Celu",empresa:"Herrajes Tigre",categoria:"proveedor",telefono:"+54 9 11 4960-0051",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Herrajes Tigre"},
+{id:gid(),nombre:"Hiperseco",apellido:"",empresa:"Hiperseco",categoria:"proveedor",telefono:"+54 9 353 656-4808",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Hiperseco, Construí sin límites.Esta es una cuenta oficial de WhatsApp Business administrada por Callbell.eu"},
+{id:gid(),nombre:"Javier",apellido:"Igenieria Particular",empresa:"Javier Igenieria Particular",categoria:"proveedor",telefono:"+54 9 11 3379-6825",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Jesús",apellido:"Rodriguez Taurus",empresa:"",categoria:"proveedor",telefono:"+54 9 11 3214-1592",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Jose",apellido:"Taurus Mora",empresa:"",categoria:"proveedor",telefono:"+54 9 11 6874-1200",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"La",apellido:"Cardeus Enrique",empresa:"",categoria:"proveedor",telefono:"+54 9 11 4947-5123",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"La",apellido:"Casa Del Instalador",empresa:"La Casa Del Instalador",categoria:"proveedor",telefono:"+54 9 299 656-0606",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Contamos con más de 40 años de trayectoria. Asesoramiento personalizado."},
+{id:gid(),nombre:"Ln",apellido:"Averturas",empresa:"Ln Averturas",categoria:"proveedor",telefono:"+54 9 11 2587-4289",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Fabrica de aberturas"},
+{id:gid(),nombre:"Lucas",apellido:"Mariani",empresa:"",categoria:"proveedor",telefono:"+54 9 11 3186-7498",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Luciano",apellido:"Kudu",empresa:"",categoria:"proveedor",telefono:"+54 9 11 3654-2374",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Luis",apellido:"Gruas Queco 2",empresa:"",categoria:"proveedor",telefono:"+54 9 11 5262-4003",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Lustoff",apellido:"Tigre",empresa:"Lqsdd",categoria:"proveedor",telefono:"+54 9 11 3487-4972",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Maderera",apellido:"Tigre",empresa:"Maderera Tigre",categoria:"proveedor",telefono:"+54 9 11 3667-6707",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Madergold",apellido:"",empresa:"Madergold San Fernando",categoria:"proveedor",telefono:"+54 9 11 5582-7022",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Venta de placas de melanina, enchapados y MDF. Herrajes y productos para el carpintero."},
+{id:gid(),nombre:"Magdalena",apellido:"Policemento",empresa:"Policemento Magda",categoria:"proveedor",telefono:"+54 9 11 3085-0741",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Mangueras",apellido:"Electricidad",empresa:"The Electric Home",categoria:"proveedor",telefono:"+54 9 11 2154-9922",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Maquinarias",apellido:"Caceros",empresa:"Maquinarias Caseros",categoria:"proveedor",telefono:"+54 9 11 4161-3746",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"."},
+{id:gid(),nombre:"Marcelo",apellido:"Queco Añelo Queco",empresa:"Gruas Queco",categoria:"proveedor",telefono:"+54 9 299 570-7631",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Servicio de grúas de izaje y camiones hidrogrua"},
+{id:gid(),nombre:"Marcos",apellido:"Pardo Neuquen",empresa:"",categoria:"proveedor",telefono:"+54 9 2477 33-0086",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Mariano",apellido:"SBASE Extractor",empresa:"",categoria:"proveedor",telefono:"+54 9 11 5106-2593",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Mario",apellido:"Pintureria",empresa:"",categoria:"proveedor",telefono:"+54 9 11 5651-5600",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Matias",apellido:"Abelson Bonomo",empresa:"",categoria:"proveedor",telefono:"+54 9 11 3456-7677",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Miguel",apellido:"Toldos 2",empresa:"",categoria:"proveedor",telefono:"+54 9 11 6991-4287",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Mundo",apellido:"Quebracho",empresa:"Mundo Quebracho",categoria:"proveedor",telefono:"+54 9 11 5451-3993",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Venta de materiales para la construcción en seco"},
+{id:gid(),nombre:"Nicolas",apellido:"Pelba Monaco",empresa:"",categoria:"proveedor",telefono:"+54 9 11 3475-1165",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Nicolas",apellido:"Perfiles San Fernando",empresa:"Nicolas Perfiles San Fernando",categoria:"proveedor",telefono:"+54 9 11 4994-9639",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Perfiles.com.ar"},
+{id:gid(),nombre:"Pablo",apellido:"Induglas",empresa:"",categoria:"proveedor",telefono:"+54 9 11 4986-7434",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Pablo",apellido:"Linke",empresa:"",categoria:"proveedor",telefono:"+54 9 11 6119-7815",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Pancho",apellido:"Carpintero",empresa:"",categoria:"proveedor",telefono:"+54 9 11 4917-0501",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Panosec",apellido:"Benavidez",empresa:"Ponasec",categoria:"proveedor",telefono:"+54 9 11 2425-3474",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Prestigio",apellido:"Tigre",empresa:"Prestigio Tigre",categoria:"proveedor",telefono:"+54 9 11 6934-6939",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"."},
+{id:gid(),nombre:"Proclima",apellido:"",empresa:"",categoria:"proveedor",telefono:"+54 9 11 6223-5365",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Puertas",apellido:"Placas",empresa:"",categoria:"proveedor",telefono:"+54 9 11 3733-9350",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Quimtex",apellido:"",empresa:"Quimtex",categoria:"proveedor",telefono:"+54 9 11 4992-9752",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Quimtex 1 pinturas y revestimientos"},
+{id:gid(),nombre:"Real",apellido:"Color Aires",empresa:"Real Color Aires",categoria:"proveedor",telefono:"+54 9 11 3473-0800",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Cómprate lo que guste , no te conformes con menos !!"},
+{id:gid(),nombre:"Revo",apellido:"Plack",empresa:"Revo Plack",categoria:"proveedor",telefono:"+54 9 11 5410-6214",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Ricardo",apellido:"Neucon",empresa:"",categoria:"proveedor",telefono:"+54 9 299 672-9288",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Rincon",apellido:"Del Herraje",empresa:"Rincon Del Herraje",categoria:"proveedor",telefono:"+54 9 11 3376-9622",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Comercio de herrajes"},
+{id:gid(),nombre:"Rosi",apellido:"Chico Corralon",empresa:"Materiales Rossi chico srl",categoria:"proveedor",telefono:"+54 9 11 3146-8283",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Venta de materiales para la construcción"},
+{id:gid(),nombre:"Sanitario",apellido:"Del Norte",empresa:"Sanitario Del Norte",categoria:"proveedor",telefono:"+54 9 11 2190-4696",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Sanitarios",apellido:"Mitre",empresa:"Sanitarios Mitre",categoria:"proveedor",telefono:"+54 9 11 3943-4626",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Venta de insumos Sanitarios y materiales para la construcción 🏡"},
+{id:gid(),nombre:"Sanitarios",apellido:"Nicuesta",empresa:"Sanitarios Nicuesta",categoria:"proveedor",telefono:"+54 9 11 6398-7256",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Casa de sanitarios y articulos para el hogar."},
+{id:gid(),nombre:"Servicios",apellido:"Italvol",empresa:"Servicios Italvol",categoria:"proveedor",telefono:"+54 9 11 5247-2333",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Alquiler de volquetes"},
+{id:gid(),nombre:"Sofía",apellido:"Retamar",empresa:"",categoria:"proveedor",telefono:"+54 9 11 2704-5236",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Stefania",apellido:"Workin",empresa:"Stefania Workin",categoria:"proveedor",telefono:"+54 9 11 2724-3899",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Fabricantes de aberturas y cerramientos 🪟🚪"},
+{id:gid(),nombre:"Tiket",apellido:"Band",empresa:"Ticket Band S.R.L. - Nicolas",categoria:"proveedor",telefono:"+54 9 11 2165-2832",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"NO AUDIO 🔇"},
+{id:gid(),nombre:"Tioso",apellido:"Hogar",empresa:"Tioso Hogar",categoria:"proveedor",telefono:"+54 9 11 6413-8584",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Todo",apellido:"Toldos",empresa:"TODO TOLDOS",categoria:"proveedor",telefono:"+54 9 11 6990-2422",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"fabrica de toldos , todos los modelos, escribinos y te cotizamos"},
+{id:gid(),nombre:"Tomas",apellido:"Oulet",empresa:"Tomas Oulet",categoria:"proveedor",telefono:"+54 9 11 3883-5173",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"PORCELLANATOS - GRIFERIAS - SANITARIOS - MARMOLERIA"},
+{id:gid(),nombre:"Tucson",apellido:"",empresa:"Tucson",categoria:"proveedor",telefono:"+54 9 11 8059-1066",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Tucu",apellido:"Carpintero Algarrobo",empresa:"",categoria:"proveedor",telefono:"+54 9 11 6127-0121",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""},
+{id:gid(),nombre:"Vera",apellido:"Cruz Herramientas",empresa:"www.abrasivosveracruz.com.ar",categoria:"proveedor",telefono:"+54 9 11 3403-0588",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Distribuidores de Industrias y Ferreterías"},
+{id:gid(),nombre:"Victoria",apellido:"Banfi Banfi",empresa:"Victoria Banfi",categoria:"proveedor",telefono:"+54 9 11 2704-5246",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:"Lider de Ventas Grandes cuentas"},
+{id:gid(),nombre:"Zingueria",apellido:"Virreyes Cel",empresa:"Zingueria Techos Galvan",categoria:"proveedor",telefono:"+54 9 11 7360-7139",telefono2:"",email:"",direccion:"",cuit:"",local:"",notas:""}
+]}
+function ini(c){return((c.nombre?c.nombre[0]:'')+(c.apellido?c.apellido[0]:'')).toUpperCase()||'?'}
+function sn(c){return((c.apellido||'')+' '+(c.nombre||'')).trim().toUpperCase()}
+function rA(){renderAlpha();renderCats();render()}
+function renderCats(){var a=[['todos','Todos'],['proveedor','Proveedor'],['cliente','Cliente'],['staff','Staff'],['servicio','Servicio'],['personal','Personal']];document.getElementById('cats').innerHTML=a.map(function(x){return'<button class="cat'+(cF===x[0]?' on':'')+'" onclick="fCat(\''+x[0]+'\')">'+x[1]+'</button>'}).join('')}
+function renderAlpha(){var ls='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),u={};db.forEach(function(c){var s=sn(c);if(s&&s[0])u[s[0]]=1});var h=ls.map(function(l){return'<button class="al'+(u[l]?' has':'')+(cL===l?' on':'')+'" onclick="fL(\''+l+'\')">'+l+'</button>'}).join('');h+='<button class="al'+(!cL?' on':'')+'" onclick="fL(null)" style="padding:0 6px;min-width:26px;font-size:8px">ALL</button>';document.getElementById('alpha').innerHTML=h}
+function render(){
+var q=document.getElementById('q').value.toLowerCase().trim();
+var f=db.filter(function(c){if(cF!=='todos'&&c.categoria!==cF)return false;if(cL){var s=sn(c);if(!s||s[0]!==cL)return false}if(q)return[c.nombre,c.apellido,c.empresa,c.telefono,c.telefono2,c.email,c.local,c.notas].join(' ').toLowerCase().indexOf(q)>=0;return true}).sort(function(a,b){return sn(a).localeCompare(sn(b),'es')});
+var g={};f.forEach(function(c){var s=sn(c),l=s?s[0]:'#';if(!g[l])g[l]=[];g[l].push(c)});
+document.getElementById('btnD').style.display=db.length?'inline-flex':'none';
+document.getElementById('sT').textContent=db.length;
+document.getElementById('sC').textContent=Object.keys(db.reduce(function(a,c){a[c.categoria]=1;return a},{})).length;
+var el=document.getElementById('list');
+if(!f.length){el.innerHTML='<div class="em"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></svg><h3>Sin resultados</h3></div>';return}
+var h='';
+Object.keys(g).sort(function(a,b){return a.localeCompare(b,'es')}).forEach(function(l){
+h+='<div class="lg"><div class="ll"><b>'+l+'</b><hr><small>'+g[l].length+'</small></div>';
+g[l].forEach(function(c){
+var av=AVC[c.categoria]||AVC.otro,bg=BGC[c.categoria]||BGC.otro;
+var ex=c.telefono2||c.direccion||c.cuit||c.local||c.notas;
+h+='<div class="ct" onclick="this.classList.toggle(\'op\')">';
+h+='<div class="av '+av+'">'+ini(c)+'</div>';
+h+='<div class="ci"><div class="n">'+(c.apellido?c.apellido+', ':'')+c.nombre+'</div>';
+if(c.empresa)h+='<div class="co">'+c.empresa+'</div>';
+h+='<div class="row">';
+if(c.telefono)h+='<span class="it"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.64.27 1.27.44 1.88a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.61.18 1.24.32 1.88.44A2 2 0 0 1 22 16.92z"/></svg>'+c.telefono+'</span>';
+if(c.email)h+='<span class="it"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>'+c.email+'</span>';
+h+='</div></div>';
+h+='<div class="cr"><span class="bg '+bg+'">'+c.categoria+'</span>';
+h+='<div class="ra"><button class="ab" onclick="event.stopPropagation();ed(\''+c.id+'\')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>';
+h+='<button class="ab dl" onclick="event.stopPropagation();del(\''+c.id+'\')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button></div></div>';
+if(ex){h+='<div class="ex">';if(c.telefono2)h+='<b>Tel Alt: </b>'+c.telefono2+'<br>';if(c.direccion)h+='<b>Dir: </b>'+c.direccion+'<br>';if(c.cuit)h+='<b>CUIT: </b>'+c.cuit+'<br>';if(c.local)h+='<b>Local: </b>'+c.local+'<br>';if(c.notas)h+='<b>Notas: </b>'+c.notas;h+='</div>'}
+h+='</div>'});h+='</div>'});
+el.innerHTML=h}
+function fL(l){cL=l;rA()}
+function fCat(c){cF=c;rA()}
+document.getElementById('q').addEventListener('input',function(){render()});
+function clr(){if(!confirm('Borrar TODOS los contactos?'))return;db=[];st();rA();toast('Datos eliminados')}
+var flds=['N','A','E','T','T2','M','D','CU','L','NO'],keys=['nombre','apellido','empresa','telefono','telefono2','email','direccion','cuit','local','notas'];
+function openM(d){document.getElementById('ov').classList.add('on');if(d){document.getElementById('mT').textContent='Editar Contacto';document.getElementById('eId').value=d.id;flds.forEach(function(f,i){document.getElementById('f'+f).value=d[keys[i]]||''});document.getElementById('fC').value=d.categoria||'proveedor'}else{document.getElementById('mT').textContent='Nuevo Contacto';document.getElementById('eId').value='';flds.forEach(function(f){document.getElementById('f'+f).value=''});document.getElementById('fC').value='proveedor'}}
+function clM(){document.getElementById('ov').classList.remove('on')}
+function sv(){var n=document.getElementById('fN').value.trim();if(!n){toast('Nombre obligatorio');return}var d={};flds.forEach(function(f,i){d[keys[i]]=document.getElementById('f'+f).value.trim()});d.categoria=document.getElementById('fC').value;var eid=document.getElementById('eId').value;if(eid){var ix=db.findIndex(function(c){return c.id===eid});if(ix!==-1){Object.assign(db[ix],d);toast('Contacto actualizado')}}else{d.id=gid();db.push(d);toast('Contacto agregado')}st();clM();rA()}
+function ed(id){var c=db.find(function(x){return x.id===id});if(c)openM(c)}
+function del(id){if(!confirm('Eliminar este contacto?'))return;db=db.filter(function(c){return c.id!==id});st();rA();toast('Contacto eliminado')}
+
+function expC(){var h=['nombre','apellido','empresa','categoria','telefono','telefono2','email','direccion','cuit','local','notas'];var csv=h.join(',')+'\n';db.forEach(function(c){csv+=h.map(function(k){var v=(c[k]||'').toString();if(v.indexOf(',')>=0||v.indexOf('"')>=0)v='"'+v.replace(/"/g,'""')+'"';return v}).join(',')+'\n'});var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv'}));a.download='agenda_docks.csv';a.click();toast('CSV exportado')}
+function impC(){document.getElementById('csvF').click()}
+function impW(){document.getElementById('vcfF').click()}
+function prn(){
+  /* expand all details for printing */
+  document.querySelectorAll('.ct').forEach(function(el){el.classList.add('op')});
+  setTimeout(function(){window.print();setTimeout(function(){document.querySelectorAll('.ct').forEach(function(el){el.classList.remove('op')})},500)},100);
+}
+
+function hVCF(ev){var files=ev.target.files;if(!files.length)return;var total=0,pending=files.length;for(var i=0;i<files.length;i++){(function(file){var r=new FileReader();r.onload=function(e){var txt=e.target.result;var cards=txt.split(/(?=BEGIN:VCARD)/i).filter(function(s){return s.trim().match(/^BEGIN:VCARD/i)});cards.forEach(function(card){var c=parseVCF(card);if(c.nombre||c.telefono){var dup=false;if(c.telefono){var norm=c.telefono.replace(/[\s\-\(\)]/g,'');dup=db.some(function(x){return x.telefono.replace(/[\s\-\(\)]/g,'')===norm})}if(!dup){c.id=gid();db.push(c);total++}}});pending--;if(pending<=0){st();rA();toast(total+' contacto'+(total!==1?'s':'')+' importado'+(total!==1?'s':''));ev.target.value=''}};r.readAsText(file,'UTF-8')})(files[i])}}
+function parseVCF(card){var c={nombre:'',apellido:'',empresa:'',categoria:'personal',telefono:'',telefono2:'',email:'',direccion:'',cuit:'',local:'',notas:''};var lines=card.split(/\r?\n/),tels=[];lines.forEach(function(ln){ln=ln.trim();if(!ln)return;var uln=ln.toUpperCase();if(uln.indexOf('TEL')>=0&&ln.indexOf(':')>=0){var val=ln.split(':').slice(1).join(':').trim();val=val.replace(/[^\d\+\s\-\(\)]/g,'').trim();if(val)tels.push(val);return}var parts=ln.split(':'),key=parts[0].split(';')[0].toUpperCase(),val2=parts.slice(1).join(':').trim();if(key==='FN'){var ps=val2.split(/\s+/);c.nombre=ps[0]||'';c.apellido=ps.slice(1).join(' ')||''}else if(key==='N'){var ns=val2.split(';');c.apellido=ns[0]||c.apellido;c.nombre=ns[1]||c.nombre}else if(key==='EMAIL'){c.email=val2}else if(key==='ORG'){c.empresa=val2.replace(/;/g,' ').trim()}else if(key==='X-WA-BIZ-NAME'){if(!c.empresa)c.empresa=val2}else if(key==='X-WA-BIZ-DESCRIPTION'){c.notas=val2.substring(0,200)}else if(key==='ADR'){c.direccion=val2.replace(/;+/g,', ').replace(/^[,\s]+|[,\s]+$/g,'').trim()}else if(key==='NOTE'){c.notas=val2}else if(key==='TITLE'||key==='ROLE'){if(val2)c.notas=c.notas?(c.notas+' | '+val2):val2}});if(tels.length>=1)c.telefono=tels[0];if(tels.length>=2)c.telefono2=tels[1];if(!c.nombre&&!c.apellido&&c.telefono)c.nombre=c.telefono;return c}
+function hCSV(ev){var f=ev.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){var ls=e.target.result.split(/\r?\n/).filter(function(l){return l.trim()});if(ls.length<2)return;var hd=ls[0].split(',').map(function(h){return h.trim().toLowerCase().replace(/['"]/g,'')});var m={};hd.forEach(function(h,i){if(['nombre','name','first_name'].indexOf(h)>=0)m.nombre=i;else if(['apellido','lastname','last_name'].indexOf(h)>=0)m.apellido=i;else if(['empresa','company'].indexOf(h)>=0)m.empresa=i;else if(['categoria','category','tipo'].indexOf(h)>=0)m.categoria=i;else if(['telefono','phone','tel','celular','mobile'].indexOf(h)>=0)m.telefono=i;else if(['telefono2','phone2'].indexOf(h)>=0)m.telefono2=i;else if(['email','correo','mail'].indexOf(h)>=0)m.email=i;else if(['direccion','address'].indexOf(h)>=0)m.direccion=i;else if(['cuit','dni'].indexOf(h)>=0)m.cuit=i;else if(['local','zona'].indexOf(h)>=0)m.local=i;else if(['notas','notes'].indexOf(h)>=0)m.notas=i});var n=0;for(var i=1;i<ls.length;i++){var v=pCSV(ls[i]);var nm=(v[m.nombre!==undefined?m.nombre:0]||'').trim();if(!nm)continue;db.push({id:gid(),nombre:nm,apellido:(v[m.apellido!==undefined?m.apellido:1]||'').trim(),empresa:(v[m.empresa]||'').trim(),categoria:nCat((v[m.categoria]||'').trim()),telefono:(v[m.telefono!==undefined?m.telefono:2]||'').trim(),telefono2:(v[m.telefono2]||'').trim(),email:(v[m.email]||'').trim(),direccion:(v[m.direccion]||'').trim(),cuit:(v[m.cuit]||'').trim(),local:(v[m.local]||'').trim(),notas:(v[m.notas]||'').trim()});n++}st();rA();toast(n+' contactos importados');ev.target.value=''};r.readAsText(f,'UTF-8')}
+function pCSV(l){var r=[],c='',q=false;for(var i=0;i<l.length;i++){var ch=l[i];if(q){if(ch==='"'&&l[i+1]==='"'){c+='"';i++}else if(ch==='"')q=false;else c+=ch}else{if(ch==='"')q=true;else if(ch===','){r.push(c);c=''}else c+=ch}}r.push(c);return r}
+function nCat(c){c=c.toLowerCase();if(['proveedor','provider'].indexOf(c)>=0)return'proveedor';if(['cliente','client'].indexOf(c)>=0)return'cliente';if(['staff','empleado'].indexOf(c)>=0)return'staff';if(['servicio','service'].indexOf(c)>=0)return'servicio';if(['personal'].indexOf(c)>=0)return'personal';return'otro'}
+function toast(m){var t=document.getElementById('ts');t.textContent=m;t.classList.add('sh');setTimeout(function(){t.classList.remove('sh')},2800)}
+ld();rA();
+document.getElementById('ov').addEventListener('click',function(e){if(e.target===this)clM()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')clM();if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('q').focus()}});
+/* Show print button after load */
+document.querySelector('.p-print').style.display='inline-flex';
+</script>
+</body>
+</html>
